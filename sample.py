@@ -167,7 +167,7 @@ class Combine(Scene):
 
         for idx in range(len(data_texts)):
             data_texts[idx].next_to(data_tip if idx == 0 else data_texts[idx - 1], RIGHT, buff=1.6 if idx == 0 else 2.15)
-            
+
         self.play(
             Write(wave_tip), Write(data_tip),
             LaggedStart(*[Write(data_text) for data_text in data_texts], lag_ratio=0.2)
@@ -181,6 +181,19 @@ class Combine(Scene):
                     buff=0.3 if idx == 0 else 0),
                     Indicate(data_texts[idx], color="red" if data[idx] == "0" else "blue")
                 )
+
+        self.wait(1)
+
+        play_line = Line(ORIGIN+0.5*UP, ORIGIN+0.5*DOWN).next_to(data_lines[0], LEFT, buff=0)
+        self.play(Create(play_line))
+
+        self.wait(0.1)
+
+        for idx in range(len(data_lines)):
+            self.play(
+                play_line.animate.next_to(data_lines[idx], RIGHT, buff=0),
+                Indicate(data_texts[idx], color="red" if data[idx] == "0" else "blue"),
+            )
 
         self.wait(1)
 
