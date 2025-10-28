@@ -85,3 +85,47 @@ class SineCurveUnitCircle(Scene):
         self.wait(8.5)
 
         dot.remove_updater(go_around_circle)
+
+class Embedding(Scene):
+    def construct(self):
+        self.wait(1)
+
+        weiBin = "0101 0101 1000 0010"
+
+        (txt1Bin, txt2Bin, txt3Bin) = [Text(weiBin, color=color) for color in [RED, GREEN, BLUE]]
+        txt1Bin.next_to(txt2Bin, UP)
+        txt3Bin.next_to(txt2Bin, DOWN)
+
+        txtLWrap = Text("“").next_to(txt1Bin, LEFT)
+        txtRWrap = Text("”").next_to(txt3Bin, RIGHT)
+
+        self.play(
+            FadeIn(txtLWrap), FadeIn(txtRWrap), 
+            LaggedStart(
+                Write(txt1Bin), 
+                Write(txt2Bin), 
+                Write(txt3Bin), 
+                lag_ratio=0.05
+            )
+        )
+
+        self.wait(0.5)
+
+        (txt1, txt2, txt3) = [Text("喂", color=color) for color in [RED, GREEN, BLUE]]
+        txt1.next_to(txt2, LEFT)
+        txt3.next_to(txt2, RIGHT)
+        # txtSound = Text("声音").next_to(txt2, DOWN)
+
+        self.play(
+            txtLWrap.animate.next_to(txt1, LEFT),
+            txtRWrap.animate.next_to(txt3, RIGHT),
+            LaggedStart(
+                Transform(txt1Bin, txt1),
+                Transform(txt2Bin, txt2),
+                Transform(txt3Bin, txt3),
+                lag_ratio=0.2
+            )
+        )
+
+        self.wait(0.1)
+        self.wait(1)
