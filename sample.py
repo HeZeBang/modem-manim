@@ -133,6 +133,57 @@ class Embedding(Scene):
 class Combine(Scene):
     def construct(self):
         self.wait(1)
+        ax0 = Axes(
+            x_range=[0, 2],
+            y_range=[-1, 1],
+            tips=True,
+            x_length=5,
+            y_length=1,
+        ).shift(4*LEFT)
+        txt0 = Text("0").next_to(ax0, DOWN)
+        line0 = ax0.plot(lambda x: np.sin(2 * np.pi * x), color=RED)
+        
+        ax1 = Axes(
+            x_range=[0, 2],
+            y_range=[-1, 1],
+            tips=True,
+            x_length=5,
+            y_length=1,
+        ).shift(4*RIGHT)
+        txt1 = Text("1").next_to(ax1, DOWN)
+        line1 = ax1.plot(lambda x: np.sin(4 * np.pi * x), color=BLUE)
+        
+        self.play(Write(txt0), Write(txt1), Create(line0), Create(line1))
+        self.wait(1)
+
+        data = "0101"
+        data_lines = [line0.copy() if i == "0" else line1.copy() for i in data]
+        data_texts = [Text(i) for i in data]
+        for line in data_lines:
+            self.add(line)
+        
+        data_tip = Text("Data:").shift(5*LEFT+3*UP)
+        wave_tip = Text("Wave:").shift(5*LEFT+2*UP)
+
+        for idx in range(len(data_texts)):
+            data_texts[idx].next_to(data_tip if idx == 0 else data_texts[idx - 1], RIGHT, buff=1.6 if idx == 0 else 2.15)
+            
+        self.play(
+            Write(wave_tip), Write(data_tip),
+            LaggedStart(*[Write(data_text) for data_text in data_texts], lag_ratio=0.2)
+        )
+
+        for idx in range(len(data_lines)):
+            line = data_lines[idx]
+            self.play(
+                line.animate.scale(0.5).next_to(
+                    wave_tip if idx == 0 else data_lines[idx-1], RIGHT, 
+                    buff=0.3 if idx == 0 else 0),
+                    Indicate(data_texts[idx], color="red" if data[idx] == "0" else "blue")
+                )
+
+        self.wait(1)
+
 
 
 class SlidingSineWaves(Scene):
