@@ -235,3 +235,60 @@ class SlidingSineWaves(Scene):
         self.play(Write(a1L), Write(a1), Write(a1R))
         self.play(a1T.animate.set_value(5), run_time=5)
         self.wait(1)
+
+class SineFrequencyRamp(Scene):
+    def construct(self):
+        # Axes setup
+        axes = Axes(
+            x_range=[0, 0.01, 0.002],  # show 10 ms of waveform
+            y_range=[-1.2, 1.2, 0.5],
+            x_length=10,
+            y_length=3,
+            axis_config={"include_numbers": False},
+        )
+
+        self.add(axes)
+
+        # Frequency parameters
+        f_start = 500  # 0.5 kHz
+        f_end = 1000  # 1 kHz
+        duration_static = 5
+        duration_ramp = 5
+
+        # Define the sine function
+        def sine_wave(x, freq):
+            return np.sin(2 * np.pi * freq * x)
+
+        # --- Part 1: static 0.5 kHz sine ---
+        wave_static = always_redraw(
+            lambda: axes.plot(
+                lambda x: sine_wave(x, f_start), x_range=[0, 0.01], color=YELLOW
+            )
+        )
+
+        self.play(Create(wave_static))
+        self.wait(duration_static)
+
+        # --- Part 2: frequency ramp 0.5kHz → 1kHz ---
+        freq_tracker = ValueTracker(0.0)
+
+        def ramp_wave():
+            # Linear interpolation
+            freq = f_start + (f_end - f_start) * freq_tracker.get_value()
+            return axes.plot(
+                lambda x: sine_wave(x, freq), x_range=[0, 0.01], color=YELLOW
+            )
+
+        wave_ramp = always_redraw(ramp_wave)
+
+        # Replace static wave with animated one
+        self.remove(wave_static)
+        self.add(wave_ramp)
+
+        self.play(
+            freq_tracker.animate.set_value(1.0),
+            run_time=duration_ramp,
+            rate_func=linear,
+        )
+
+        self.wait(5)
