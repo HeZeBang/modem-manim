@@ -129,3 +129,45 @@ class Embedding(Scene):
 
         self.wait(0.1)
         self.wait(1)
+
+class Combine(Scene):
+    def construct(self):
+        self.wait(1)
+
+
+class SlidingSineWaves(Scene):
+    """Draw two sine waves (long & short period) that continuously slide left
+    by increasing their common phase. The axes remain fixed.
+    """
+    def construct(self):
+        a1 = DecimalNumber(
+            2,
+            show_ellipsis=False,
+            num_decimal_places=1,
+            include_sign=True,
+        ).shift(3 * UP + RIGHT * 3) 
+        a1L = MathTex(r"y = \sin (").next_to(a1, LEFT, buff=0.1)
+        a1R = MathTex(r"\cdot \; x)").next_to(a1, RIGHT, buff=0.25)
+        # a1.shift(UP*0.04)
+
+        a1T = ValueTracker(2)
+        a1.add_updater(lambda l:l.set_value(a1T.get_value()))
+
+        def get_line():
+            ax = Axes(
+                x_range=[0, 5],
+                y_range=[-5, 5],
+                tips=True,
+                x_length=5
+            )
+            line = ax.plot(lambda x: np.sin(a1T.get_value() * x), color=BLUE)
+            return line
+        
+        ax = always_redraw(get_line)
+
+        # self.add(ax)
+        self.play(FadeIn(ax))
+        self.wait(0.1)
+        self.play(Write(a1L), Write(a1), Write(a1R))
+        self.play(a1T.animate.set_value(5), run_time=5)
+        self.wait(1)
